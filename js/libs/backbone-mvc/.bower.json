@@ -1,0 +1,29 @@
+{
+  "name": "chance-an/backbone-mvc",
+  "main": "backbone-mvc.js",
+  "description": "Add Controllers to Backbone, route url hash to your controller method.",
+  "license": "GNU LESSER",
+  "ignore": [
+    "example",
+    "test"
+  ],
+  "dependencies": {
+    "jquery": ">=1.7.2",
+    "backbone": "*",
+    "underscore": "*"
+  },
+  "devDependencies": {
+    "jasmine": "*"
+  },
+  "homepage": "https://github.com/chance-an/backbone-mvc",
+  "_release": "9427377471",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "9427377471795bde3f31bfc06df41f855a712f95"
+  },
+  "_source": "git://github.com/chance-an/backbone-mvc.git",
+  "_target": "*",
+  "_originalSource": "backbone-mvc",
+  "_direct": true
+}
