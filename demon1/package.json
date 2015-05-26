@@ -19,5 +19,9 @@
     "multer": "^0.1.6",
     "serve-favicon": "^2.1.7",
     "serve-static": "^1.7.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "requirejs": "^2.1.17"
   }
 }

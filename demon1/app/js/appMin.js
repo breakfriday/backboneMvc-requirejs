@@ -12159,7 +12159,7 @@ return jQuery;
         factory(global, BackboneMVC, global.Backbone, global._, global.$);
     }
 })(this, function (global, BackboneMVC, Backbone, _, $) {
-    
+    'use strict';
     //check prerequisites
     if (typeof Backbone == "undefined" || typeof _ === 'undefined') {
         return;
