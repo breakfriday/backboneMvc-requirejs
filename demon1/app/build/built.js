@@ -16,11 +16,9 @@
 
 
     optimize: "none",
-    shim: {
-        'Backbone': ['underscore'],
-        'BackboneMVC': ['backbone']
-    },
 
-    name: "main"
+
+    name: "main",
+    exclude: ['text']
 
 })
