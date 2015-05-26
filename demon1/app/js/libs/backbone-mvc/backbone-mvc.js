@@ -1,6 +1,6 @@
-//BackboneMVC 1.0
+//BackboneMVC 1.1.0
 
-//Copyright 2012 Changsi An
+//Copyright 2014 Changsi An
 
 //This file is part of Backbone-MVC.
 //
@@ -56,19 +56,36 @@
 
 
 //------------------------------------------------------------------------------
-(function () {
-    'use strict';
+(function(global, factory) {
     var PRODUCT_NAME = 'BackboneMVC';
-
-    //check prerequisites
-    if (typeof Backbone === 'undefined' || typeof _ === 'undefined') {
-        return;
-    }
-
     /**
      * @namesapce BackboneMVC
      */
-    var BackboneMVC = window[PRODUCT_NAME] = {};
+    if (global[PRODUCT_NAME]) {
+        return;
+    }
+    var BackboneMVC = global[PRODUCT_NAME] = {};
+
+    if (typeof define === 'function' && define.amd) {
+        define(['backbone', 'underscore', 'jquery'], function (backbone, underscore, jquery) {
+            factory(global, BackboneMVC, backbone, underscore, jquery);
+            return BackboneMVC;
+        });
+    }else if(typeof exports !== 'undefined') {
+        var _ = require('underscore');
+        var $ = require('jquery');
+        var backbone = require('backbone');
+        factory(global, exports, backbone, _, $);
+    }else{
+        // No moduling framework is detected, assume it's under global scope.
+        factory(global, BackboneMVC, global.Backbone, global._, global.$);
+    }
+})(this, function (global, BackboneMVC, Backbone, _, $) {
+    'use strict';
+    //check prerequisites
+    if (typeof Backbone == "undefined" || typeof _ === 'undefined') {
+        return;
+    }
 
     /**
      * This is the base prototype of the Controller classes.
@@ -88,7 +105,7 @@
         }
 
         _.extend(BaseController.prototype, {
-            _created: null
+            _created:null
         });
 
         BaseController.extend = function (properties) {
@@ -126,9 +143,9 @@
          * @param {String} namespaceString levels in namespaces
          * @example "Mammalia.Cetacea.Delphinidae.Dolphin"
          */
-        namespace: function (namespaceString) {
+        namespace:function (namespaceString) {
             var components = namespaceString.split('.');
-            var node = window;
+            var node = global;
             for (var i = 0, l = components.length; i < l; i++) {
                 if (node[components[i]] === undefined) {
                     node[components[i]] = {};
@@ -142,21 +159,21 @@
          * @type {Class} BackboneMVC.Controller
          */
         //some default implementations for the methods are listed here:
-        Controller: {
-            beforeFilter: function () {
+        Controller:{
+            beforeFilter:function () {
                 return (new $.Deferred()).resolve();
             },
 
-            afterRender: function () {
+            afterRender:function () {
                 return (new $.Deferred()).resolve();
             },
 
-            checkSession: function () {
+            checkSession:function () {
                 //if not defined, then always succeed
                 return (new $.Deferred()).resolve(true);
             },
 
-            'default': function () {
+            'default':function () {
                 //TODO: this function will list all the actions of the controller
                 //intend to be overridden in most of the cases
                 return true;
@@ -168,15 +185,15 @@
          * It must not be further customized, or the automatic routing feature cannot function.
          * @class BackboneMVC.Router
          */
-        Router: (function () {
+        Router:(function(){
             var _inherentRouterProperties = {
-                _history: [],
+                _history:[],
 
-                routes: {
-                    "*components": 'dispatch' // route everything to 'dispatch' method
+                routes:{
+                    "*components":'dispatch' // route everything to 'dispatch' method
                 },
 
-                dispatch: function (actionPath) {
+                dispatch:function (actionPath) {
                     var components = (actionPath || '').replace(/\/+$/g, '').split('/');
                     var controllerName;
 
@@ -204,12 +221,12 @@
 
                     //the URL components after the 2nd are passed to the action method
                     var _arguments = components.length > 2 ? _.rest(components, 2) : [];
-                    Backbone.View.prototype.Controller = controller;  /*增加 视图对象调用*/
+
                     addHistoryEntry(this, controllerName, action, _arguments);
                     return invokeAction(controllerName, action, _arguments);
                 },
 
-                '404': function () {
+                '404':function () {
                     //do nothing, expect overriding
                 },
 
@@ -217,7 +234,7 @@
                  * Return the last invoked action
                  * @return {object} the last action being invoked and it's parameters
                  */
-                getLastAction: function () {
+                getLastAction:function () {
                     return _.last(this._history, 1)[0];
                 },
 
@@ -227,7 +244,7 @@
                  * @param options may contain trigger and replace options.
                  * @return {*} Deferred
                  */
-                navigate: function (fragment, options) {
+                navigate: function(fragment, options){
                     if (!options || options === true) {
                         options = {trigger: options};
                     }
@@ -236,17 +253,17 @@
                     // but such logical flaw can be exploited. The goal is to not modify Backbone.js at all
 
                     Backbone.Router.prototype.navigate.call(this, fragment, _options);
-                    if (options.trigger) {
+                    if(options.trigger){
                         return this.dispatch(fragment);
-                    } else {
+                    }else{
                         return (new $.Deferred()).resolve();
                     }
                 }
             };
 
-            function extend(properties) {
-                var _routes = _.extend(properties.routes || {}, _inherentRouterProperties.routes);
-                return Backbone.Router.extend(_.extend(properties, _inherentRouterProperties, { routes: _routes }));
+            function extend(properties){
+                var _routes = _.extend(properties.routes || {}, _inherentRouterProperties.routes );
+                return Backbone.Router.extend(_.extend({}, _inherentRouterProperties, properties, { routes: _routes }));
             }
 
             var RouterClass = Backbone.Router.extend(
@@ -266,13 +283,13 @@
          * @class BackboneMVC.Model
          * @example //TODO
          */
-        Model: {
-            extend: function (properties) {
+        Model:{
+            extend:function (properties) {
                 properties = _.extend({
-                    __fetchSuccessCallback: null,
-                    __fetchErrorCallback: null,
+                    __fetchSuccessCallback:null,
+                    __fetchErrorCallback:null,
 
-                    fetch: function (options) {
+                    fetch:function (options) {
                         options = options || {};
                         //wrap the success callback, so we get a chance of triggering 'read' event
                         //by taking over the '__fetchSuccessCallback()' defined in 'parse()'
@@ -290,7 +307,7 @@
                         //wrap the error callback, so we get a chance of triggering 'error' event
                         var error = options.error;
                         options.error = function (model, resp) {
-                            if (error) {
+                            if (error){
                                 error(model, resp);
                             }
                             model.trigger('error', error);
@@ -304,7 +321,7 @@
                      * @param {object} response the returned and parsed json object
                      * @return {*}
                      */
-                    parse: function (response) {
+                    parse:function (response) {
                         this.__fetchSuccessCallback = null;
                         this.__fetchErrorCallback = null;
 
@@ -384,8 +401,8 @@
             //_actions and _secureActions are only used to tag those two types of methods, the action methods
             //are still with the controller
             _.extend(tmpControllerProperties, actionMethods, {
-                _actions: actionMethods,
-                _secureActions: secureActions
+                _actions:actionMethods,
+                _secureActions:secureActions
             });
             //remove the extend method if there is one, so it doesn't stay in the property history
             if ('extend' in tmpControllerProperties) {
@@ -395,7 +412,7 @@
             var _controllerClass = ControllerSingleton.extend(tmpControllerProperties);
             //special handling for utility method of inheritance
             _.extend(_controllerClass, {
-                extend: _extendMethodGenerator(_controllerClass, _.extend({}, _inheritedMethodsDefinition, properties))
+                extend:_extendMethodGenerator(_controllerClass, _.extend({}, _inheritedMethodsDefinition, properties))
             });
 
             //Register Controller
@@ -446,7 +463,7 @@
         string = string.replace(/\s{2,}/g, ' ');
 
         return (_.map(string.split(' '), function (entry) {
-            return entry.replace(/(^|_)[a-z]/gi, function (match) {
+            return entry.replace(/(^|_)[a-z]/gi,function (match) {
                 return match.toUpperCase();
             }).replace(/_/g, '');
         })).join(' ');
@@ -539,14 +556,4 @@
         }
         router._history.push([controller_name, action, _arguments]);
     }
-})();
-
-// Register as a named AMD module, since BackboneMVC can be concatenated with
-// other files that may use define, but not via a proper concatenation script
-// that understands anonymous AMD modules. A named AMD is safest and most robust
-// way to register.
-if (typeof define === "function" && define.amd) {
-    define("BackboneMVC", [], function () {
-        return BackboneMVC;
-    });
-}
+});
