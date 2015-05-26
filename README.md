@@ -17,6 +17,6 @@ backboneMvc-requirejs
   var indo = {
     nickName  : "breakhappy",
     email:"break_happy@163.com"
-    site : "http://www.cnblogs.com/breakdown/"
+    blog : "http://www.cnblogs.com/breakdown/p/3833935.html"
   }
 ```
