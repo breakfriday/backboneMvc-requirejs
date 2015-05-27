@@ -4,6 +4,8 @@ backboneMvc-requirejs
 <img style="width:884px" src="https://raw.githubusercontent.com/breakfriday/backboneMvc-requirejs/master/liucheng.PNG">
 
 项目结构流程如图所示，
+---
+backboneMvc  增加控制器逻辑, 效果类似cakephp。 在前端通过requirejs路由动态加载匹配的控制器文件执行对应的action
 
 
 
